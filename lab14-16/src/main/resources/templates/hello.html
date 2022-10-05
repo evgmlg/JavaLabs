@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Каталог товаров</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="icon" type="image/png" th:href="@{/favicon.ico}"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+<div class="fluid-container" th:fragment="navi(activeTab)">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary ">
+        <a class="navbar-brand" th:href="@{/}">Project</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item" th:classappend="${activeTab == 'Home' ? 'active' : ''}">
+                    <a class="nav-link" th:href="@{/}">Главная страница<span
+                            class="sr-only">(current)</span></a>
+                </li>
+<!--                <li class="nav-item" th:classappend="${activeTab == 'Shop' ? 'active' : ''}">-->
+<!--                    <a class="nav-link" th:href="@{/shop}">Каталог товаров<span class="sr-only">(current)</span></a>-->
+<!--                </li>-->
+<!--                <li class="nav-item" th:classappend="${activeTab == 'Info' ? 'active' : ''}">-->
+<!--                    <a class="nav-link" th:href="@{/info}">Информация<span class="sr-only">(current)</span></a>-->
+<!--                </li>-->
+<!--                <li sec:authorize="hasRole('ADMIN')" class="nav-item"-->
+<!--                    th:classappend="${activeTab == 'Products' ? 'active' : ''}">-->
+<!--                    <a class="nav-link" th:href="@{/product/edit/0}">Добавить товар</a>-->
+<!--                </li>-->
+<!--                <li class="nav-item"-->
+<!--                    th:classappend="${activeTab == 'Cart' ? 'active' : ''}">-->
+<!--                    <a class="nav-link" th:href="@{/shop/cart}">Корзина</a>-->
+<!--                </li>-->
+                <li sec:authorize="isAuthenticated()" class="nav-item" style="color: #dee2e6">
+                    <form th:action="@{/logout}" method="POST">
+                            <input type="submit" class="btn btn-danger" value="Logout"/>
+                    </form>
+                </li>
+                <li  sec:authorize="isAuthenticated()" class="nav-link" style="color: #ffffff">
+                    Преветствуем вас,
+                    <span sec:authentication="name"></span>
+                </li>
+                <li sec:authorize="isAnonymous()" class="nav-item">
+                    <form class="align-middle" th:action="@{/authenticateTheUser}" method="POST">
+                        <div class="input-group-prepend">
+                            <input id = "pole1" class="form-control" type="text" placeholder="Логин" name="username"
+                                   aria-describedby="inputGroup-sizing-sm">
+                            <input class="form-control" type="text" placeholder="Пароль" name="password"
+                                   aria-describedby="inputGroup-sizing-sm">
+                            <button class="btn btn-secondary btn-sm" type="submit">Войти</button>
+                        </div>
+                    </form>
+                </li>
+                <li></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="visible-md" style="height:80px;"></div>
+</div>
+    <div class="containe">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название товара</th>
+                    <th>Цена</th>
+                    <th>Количество просмотров</th>
+                    <th sec:authorize="isAuthenticated()">Действия</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}"/>
+                    <td th:text="${product.title}"/>
+                    <td th:text="${product.price}"/>
+                    <td th:text="${product.counter}"></td>
+                    <td sec:authorize="isAuthenticated()">
+                        <a th:href="@{'/products/show/' + ${product.id}}" th:text="Посмотреть"/>
+<!--                        <td sec:authorize="hasRole('ADMIN')">-->
+                            <a sec:authorize="hasRole('ADMIN')" th:href="@{'/show_edit/' +${product.id}}" th:text="Изменить" />
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{'/delete/' +${product.id}}" th:text="Удалить" />
+<!--                        </td>-->
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+        <td align="center" sec:authorize="isAuthenticated()">
+                <a th:align="center" th:href="@{'/showPage/0'}" th:text="1"/>
+                <a th:align="center" th:href="@{'/showPage/1'}" th:text="2"/>
+                <a th:align="center" th:href="@{'/showPage/2'}" th:text="3"/>
+                <a th:align="center" th:href="@{'/showPage/3'}" th:text="4"/>
+                <a th:align="center" th:href="@{'/showPage/4'}" th:text="5"/>
+        </td>
+    </div>
+<div>
+    <a> Топ 3 просматриваемых товара:</a>
+    <a th:each="product : ${top3}">
+        <ul>
+             <li><a th:text="${product.title}"></a></li>
+        </ul>
+    </a>
+</div>
+    <form th:action="@{/products}" class="form-horizontal">
+    <div class="Filter">
+        <table>
+            <tbody>
+<!--                <tr sec:authorize="hasRole('ADMIN')">-->
+                <tr sec:authorize="isAuthenticated()">
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <td><input th:value = "${Min != null} ? ${Min}" name="Min" placeholder="*min" class="form-control"></td>
+                    </div>
+
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <td><input th:value = "${Max != null} ? ${Max}" name="Max" placeholder="*max" class="form-control"></td>
+                    </div>
+
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <td><input th:value = "${Substring != null} ? ${Substring}" name="Substring" placeholder="*text" class="form-control"></td>
+                    </div>
+
+                    <div style="margin-top: 10px" class="form-group">
+                        <div class="col-sm-6 controls">
+                            <td><input type="submit" value="Фильтровать" class="btn btn-primary"></td>
+                        </div>
+                    </div>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    </form>
+<form th:action="@{/res}" th:method="get">
+    <div style="margin-top: 10px" class="form-group">
+        <div class="col-sm-6 controls">
+            <button type="submit" class="btn btn-primary">Сбросить</button>
+        </div>
+    </div>
+</form>
+
+    <form th:action="@{/add}">
+    <div class="Add">
+        <table>
+            <tbody>
+            <tr sec:authorize="hasRole('ADMIN')">
+<!--                <td><input name="Name" placeholder="*name" class="form-control"></td>-->
+<!--                <td><input name="Price" placeholder="*price" class="form-control"></td>-->
+                <td >
+                    <input type="submit" value="Добавить"  class="btn btn-primary">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </form>
+
+<!--    <form th:action="@{/delete}">-->
+<!--    <div class="Delete">-->
+<!--        <table>-->
+<!--            <tbody>-->
+<!--            <tr sec:authorize="hasRole('ADMIN')">-->
+<!--                <td><input name="id" placeholder="*id" class="form-control"></td>-->
+<!--                <td><input type="submit" value="Удалить"  class="btn btn-primary"></td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--    </div>-->
+<!--    </form>-->
+
+    <form th:action="@{/change}">
+    <div class="change">
+        <table>
+<!--            <caption>Изменение товара</caption>-->
+<!--            <tr>-->
+<!--                <th>ID</th>-->
+<!--                <th>Новое название</th>-->
+<!--                <th>Новая цена</th>-->
+<!--                <th>Подтверждение</th>-->
+<!--            </tr>-->
+            <tbody>
+<!--            <tr>-->
+<!--                <td><input name="ID" placeholder="*id" class="form-control"></td>-->
+<!--                <td><input name="Name" placeholder="*name" class="form-control"></td>-->
+<!--                <td><input name="Price" placeholder="*price" class="form-control"></td>-->
+<!--                <td sec:authorize="hasRole('ADMIN')"><input type="submit" value="Изменить"  class="btn btn-primary"></td>-->
+<!--            </tr>-->
+            </tbody>
+        </table>
+    </div>
+    </form>
+
+</body>
+</html>
