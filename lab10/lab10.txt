@@ -1,0 +1,52 @@
+CREATE TABLE Students(
+    ID_student SERIAL NOT NULL PRIMARY KEY,
+    Name_student varchar(15),
+    Passport_series_student int NOT NULL,
+    Passport_id_student int NOT NULL,
+    Constraint wow unique(Passport_series_student,Passport_id_student)
+);
+
+CREATE TABLE Subjects(
+    ID_subject SERIAL NOT NULL PRIMARY KEY,
+    Name_subject varchar(15)
+);
+
+CREATE TABLE Progress(
+    ID_progress SERIAL NOT NULL,
+    ID_student int,
+    CONSTRAINT FK_ID_student FOREIGN KEY(ID_student) REFERENCES Students(ID_student) Match full ON DELETE CASCADE,
+    ID_subject int,
+    CONSTRAINT FK_ID_subject FOREIGN KEY(ID_subject) REFERENCES Subjects(ID_subject) Match full ON DELETE CASCADE,
+    Mark smallint,
+    CONSTRAINT Mark check(Mark in (2,3,4,5))
+);
+
+insert into Students values(1,'Рома','3344','123456'),(2,'Дима','4344','223456'),(3,'Кирилл','4444','323456'),(4,'Андрей','4324','423456');
+
+insert into Subjects values(1,'Матан'),(2,'Русский'),(3,'История'),(4,'Философия');
+
+insert into Progress values(1,1,1,4),(1,2,1,4),(1,3,1,5),
+(1,1,2,3),(1,2,2,4),(1,3,2,5),
+(1,1,3,3),(1,2,3,3),(1,3,2,5);
+
+
+
+2. Select Name_student, Mark from Students as j1
+INNER JOIN Progress as j2 on j1.ID_student = j2.ID_student
+WHERE Mark > 3
+
+
+4. select Name_subject, avg(Mark) from Subjects as j1
+INNER JOIN Progress as j2 on j1.ID_subject = j2.ID_subject
+GROUP BY Name_subject
+
+5. select j1.ID_student, Name_student, avg(Mark) from Students as j1
+INNER JOIN Progress as j2 on j1.ID_student = j2.ID_student
+GROUP BY j1.ID_student;
+
+6. SELECT Name_subject, COUNT(Mark) FROM Subjects AS j1
+INNER JOIN Progress AS j2 on j1.ID_subject = j2.ID_subject
+GROUP BY Name_subject 
+ORDER BY COUNT(Mark) desc limit 3;
+
+
